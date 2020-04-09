@@ -1,0 +1,127 @@
+---
+features: 
+  css: css_KJF.css
+---
+variable name: KJFperson_info
+use objects: True
+data:
+  - First Name: Peter
+    Last Name: Fietz
+    Age: 52
+    Hobbies: Gardening
+    Likes Pets?: True
+  - First Name: Merrilyn
+    Last Name: Fietz
+    Age: 53
+    Hobbies: Painting
+    Likes Pets?: True
+  - First Name: Joel
+    Last Name: Fietz
+    Age: 18
+    Hobbies: Gaming
+    Likes Pets?: False
+---
+mandatory: True
+question: Family Information Checker
+subquestion: |
+  This is the information collected for each family member.
+  
+  ${ KJFcolumn_header }
+  ${ KJFdashes }
+  %for KJFitem in KJFtable_rows:
+  ${ KJFitem }
+  %endfor
+  
+  You must confirm whether each piece of information is correct.
+buttons:
+- Continue: continue
+- Exit: exit
+- Restart: restart
+---
+code: |
+  KJFcolumn_header = ""
+  
+  for KJFitem in KJFperson_info[0]:
+    KJFcolumn_header += KJFitem + '|'
+    
+  KJFcolumn_header = KJFcolumn_header[:-1]
+---
+code: |
+  KJFdashes = "---"
+  for item in range(len(KJFperson_info[0]) - 1):
+    KJFdashes += "|---"
+---
+code: | 
+  KJFtable_rows = []
+  
+  for KJFitem in KJFperson_info:
+      MDrow = ""
+      for KJFkey in KJFitem:
+        MDrow += str(KJFitem[KJFkey]) + '|'
+      MDrow = MDrow[:-1]
+      KJFtable_rows.append(MDrow)
+---
+variable name: KJFquestions
+use objects: True
+data:
+  - KJFquestion: Please select the correct information for Peter
+    KJFchoices:
+      - First Name is Peter
+      - Last Name is Fietz
+      - Age is 52
+      - Hobby is Gardening
+      - He likes pets
+  - KJFquestion: Please select the correct information for Merrilyn
+    KJFchoices:
+      - First Name is Merrilyn
+      - Last Name is Fietz
+      - Age is 53
+      - Hobby is Painting
+      - She likes pets
+  - KJFquestion: Please select the correct information for Joel
+    KJFchoices:
+      - First Name is Joel
+      - Last Name is Fietz
+      - Age is 18
+      - Hobby is Gaming
+      - He likes pets
+---
+mandatory: True
+question: Family Information
+subquestion: |
+  Here is the validated information collected for each family member.
+    Information is displayed along with which information is correct.
+  
+  ${ KJFquestion_table }
+  
+attachment:
+  docx template file: family.docx
+  valid formats:
+   - pdf
+buttons:
+  - Exit: exit
+  - Restart: restart
+---
+table: KJFquestion_table
+rows:  KJFquestions
+columns:
+  - First Name: |
+      row_item['KJFchoices'] [0]
+  - Last Name: |
+      row_item['KJFchoices'] [1]
+  - Age: |
+      row_item['KJFchoices'] [2]
+  - Hobbies: |
+      row_item['KJFchoices'] [3]
+  - Likes Pets: |
+      row_item['KJFchoices'] [4]
+  - Correct answers: |
+      row_item['KJFanswers'].true_values()
+---
+question: |
+  ${ KJFquestions[i]['KJFquestion'] }
+fields:
+  - no label: KJFquestions[i]['KJFanswers']
+    datatype: checkboxes
+    code: KJFquestions[i]['KJFchoices']
+---
